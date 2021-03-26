@@ -44,10 +44,11 @@ export function stripHtmlTags(html, options = { excludeUserMentions: true }) {
       .replace(/<(img|br).*?\/>/g, protectorCb)
       .replace(/<(\/)?(a|ul|ol|li|p|strong|em)( .*?)?>/g, protectorCb)
   }
-  const finalHtml = preparedHtml
+  const taggedHtml = preparedHtml
     .replace(/<\/?[^>]+(>+|$)/g, '') // remove tags
     .replace(/{{{/g, '<')
     .replace(/}}}/g, '>')
+  const finalHtml = fixYoutubeLinks(taggedHtml)
   return <span dangerouslySetInnerHTML={{ __html: finalHtml }} />
 }
 /**
@@ -70,4 +71,24 @@ export function truncateText(text, length) {
     return text
   }
   return `${text.substr(0, length)}...`
+}
+
+function fixYoutubeLinks(html){
+  const ytregex = /^((https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/gm
+  console.log(html, 'fixYoutubeLinks');
+  const matches = html.match(ytregex);
+  if(matches) return youtubeAtagText(html, matches)
+  else return html
+}
+
+function youtubeAtagText(html, matches){
+  const atagregex = /(>\s?<\/a>)/g
+  let count = 0
+  const fixedHtml = html.replace(atagregex, function($0) {
+    if (count === matches.length) count = 0
+    return matches[count++]
+  })
+  console.log(html, 'youtubeAtagText')
+  console.log(fixedHtml, 'youtubeAtagText')
+  return fixedHtml
 }
