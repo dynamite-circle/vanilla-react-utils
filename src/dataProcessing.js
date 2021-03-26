@@ -1,4 +1,5 @@
 import React from 'react'
+import $ from 'jquery' 
 
 const oneYear = 1000 * 3600 * 24 * 365
 // to avoid adding moment to package dependencies: a short custom function
@@ -74,11 +75,15 @@ export function truncateText(text, length) {
   return `${text.substr(0, length)}...`
 }
 
-function fixYoutubeLinks(html){
-  const ytregex = /^((https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/gm
-  console.log(html, 'fixYoutubeLinks');
-  const matches = html.match(ytregex);
-  if(matches) return youtubeAtagText(html, matches)
+var mymatch
+function fixYoutubeLinks(html) {
+  const ytregex = /(href=)"([^"]*(youtube\.com|youtu.be)[^"]*)"/gm
+  console.log(html, 'fixYoutubeLinks')
+  const matches = html.match(ytregex)
+  // `<p>youtube link: <a href="https://www.youtube.com/watch?v=ITfmq24gvc8"></a></p> <p>youtube link: <a href="https://www.youtube.com/watch?v=ITfmq24gvc8"></a></p> <p>regular link: <a href="https://forum.dynamitecircle.com/categories/activity" rel="nofollow">https://forum.dynamitecircle.com/categories/activity</a></p>`
+  mymatch = matches
+  console.log(matches.groups)
+  if (matches) return youtubeAtagText(html, matches)
   else return html
 }
 
@@ -87,9 +92,11 @@ function youtubeAtagText(html, matches){
   let count = 0
   const fixedHtml = html.replace(atagregex, function($0) {
     if (count === matches.length) count = 0
-    return matches[count++]
+    len = matches[count].length
+    let strippedMatch = matches[count++].slice(5, len - 1) 
+    return '>' + strippedMatch + '</a>'
   })
-  console.log(html, 'youtubeAtagText')
-  console.log(fixedHtml, 'youtubeAtagText')
+  // console.log(html, 'youtubeAtagText')
+  // console.log(fixedHtml, 'youtubeAtagText')
   return fixedHtml
 }
