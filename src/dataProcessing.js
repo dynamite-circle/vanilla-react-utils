@@ -34,6 +34,7 @@ export function formatAsMonthDay(dateTimeString) {
  */
 export function stripHtmlTags(html, options = { excludeUserMentions: true }) {
   let preparedHtml = html
+  console.log('stripHtml', preparedHtml)
   // a small hack: if we want to preserve the user mentions,
   // we replace the < and > signs with triple-curly-brackets,
   // then we change them back after the tags have been removed
